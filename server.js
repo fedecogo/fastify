@@ -1,21 +1,33 @@
-const fastify = require('fastify')({ logger: false })
+const fastify = require('fastify')({ logger: true })
 
-const items = require('./Items')
-
-fastify.get('/items' , (req , reply ) => {
-    reply.send({items})
+fastify.register(require('@fastify/swagger'), {
+  swagger: {
+    info: {
+      title: 'fastify-api',
+      description: 'API documentation',
+      version: '1.0.0'
+    },
+    host: 'localhost:3000',
+    schemes: ['http'],
+    consumes: ['application/json'],
+    produces: ['application/json']
+  }
 })
 
-fastify.get('/items/:id', (req , reply ) => {
-    const {id} = req.params
-
-    const item = items.find((item) => item.id === id)
-
-    reply.send({item})
+fastify.register(require('@fastify/swagger-ui'), {
+  routePrefix: '/docs', // prefisso per la UI Swagger
+  swagger: {
+    info: {
+      title: 'fastify-api',
+      description: 'API documentation',
+      version: '1.0.0'
+    }
+  },
+  exposeRoute: true
 })
 
-
-
+// Registrazione delle route
+fastify.register(require('./routes/items'))
 
 const start = async () => {
     try {
@@ -27,3 +39,4 @@ const start = async () => {
 }
 
 start()
+
